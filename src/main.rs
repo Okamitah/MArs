@@ -1,3 +1,5 @@
+use std::f64;
+
 fn main() {
     //Variables
     let data = vec![1.5, 7.2, 5.0, 2.6];
@@ -242,5 +244,150 @@ impl Tensor {
         let len = &self.shape.iter().map(|&x| x as f64).product();
         
         Ok(sum/len)
+    }
+}
+
+fn mae(pred: &Tensor, target: &Tensor) -> Result<f64, TensorError> {
+    if pred.shape != target.shape {
+        return Err(TensorError::TypeMismatch);
+    }
+
+    let mut error = 0.0;
+    let size = pred.shape.iter().product();
+
+    match (&pred.data, &target.data) {
+        (TensorData::F64(a), TensorData::F64(b)) => {
+            for i in 0..size {
+                let err = a[i] - b[i];
+                error += err.abs();
+            }
+            Ok(error/size as f64)
+        },
+        (TensorData::I32(a), TensorData::I32(b)) => {
+            for i in 0..size {
+                let err = a[i] as f64 - b[i] as f64;
+                error += err.abs();
+            }
+            Ok(error/size as f64)
+        },
+        _ => return Err(TensorError::TypeMismatch),
+    }
+}
+
+fn mse(pred: &Tensor, target: &Tensor) -> Result<f64, TensorError> {
+    if pred.shape != target.shape {
+        return Err(TensorError::TypeMismatch);
+    }
+
+    let mut error = 0.0;
+    let size = pred.shape.iter().product();
+
+    match (&pred.data, &target.data) {
+        (TensorData::F64(a), TensorData::F64(b)) => {
+            for i in 0..size {
+                let err = a[i] - b[i];
+                error += err.powi(2);
+            }
+            Ok(error/size as f64)
+        },
+        (TensorData::I32(a), TensorData::I32(b)) => {
+            for i in 0..size {
+                let err = a[i] as f64 - b[i] as f64;
+                error += err.powi(2);
+            }
+            Ok(error/size as f64)
+        },
+        _ => return Err(TensorError::TypeMismatch),
+    }
+}
+
+fn rmse(pred: &Tensor, target: &Tensor) -> Result<f64, TensorError> {
+    if pred.shape != target.shape {
+        return Err(TensorError::TypeMismatch);
+    }
+
+    let mut error = 0.0;
+    let size = pred.shape.iter().product();
+
+    match (&pred.data, &target.data) {
+        (TensorData::F64(a), TensorData::F64(b)) => {
+            for i in 0..size {
+                let err = a[i] - b[i];
+                error += err.powi(2);
+            }
+            Ok((error/size as f64).sqrt())
+        },
+        (TensorData::I32(a), TensorData::I32(b)) => {
+            for i in 0..size {
+                let err = a[i] as f64 - b[i] as f64;
+                error += err.powi(2);
+            }
+            Ok((error/size as f64).sqrt())
+        },
+        _ => return Err(TensorError::TypeMismatch),
+    }
+}
+
+fn mbe(pred: &Tensor, target: &Tensor) -> Result<f64, TensorError> {
+    if pred.shape != target.shape {
+        return Err(TensorError::TypeMismatch);
+    }
+
+    let mut error = 0.0;
+    let size = pred.shape.iter().product();
+
+    match (&pred.data, &target.data) {
+        (TensorData::F64(a), TensorData::F64(b)) => {
+            for i in 0..size {
+                let err = a[i] - b[i];
+                error += err;
+            }
+            Ok(error/size as f64)
+        },
+        (TensorData::I32(a), TensorData::I32(b)) => {
+            for i in 0..size {
+                let err = a[i] as f64 - b[i] as f64;
+                error += err;
+            }
+            Ok(error/size as f64)
+        },
+        _ => return Err(TensorError::TypeMismatch),
+    }
+}
+
+fn smae(pred: &Tensor, target: &Tensor, delta: f64) -> Result<f64, TensorError> {
+    if pred.shape != target.shape {
+        return Err(TensorError::TypeMismatch);
+    }
+
+    let mut error = 0.0;
+    let size = pred.shape.iter().product();
+
+    match (&pred.data, &target.data) {
+        (TensorData::F64(a), TensorData::F64(b)) => {
+            for i in 0..size {
+                let err = a[i] - b[i];
+
+                if err.abs() < delta {
+                    error += 0.5 * err.powi(2);
+                } else {
+                    error += delta * err.abs() - 0.5 * delta.powi(2);
+                }
+            }
+            Ok(error/size as f64)
+        },
+        (TensorData::I32(a), TensorData::I32(b)) => {
+            for i in 0..size {
+                let err = a[i] as f64 - b[i] as f64;
+
+                if err.abs() < delta {
+                    error += 0.5 * err.powi(2);
+                } else {
+                    error += delta * err.abs() - 0.5 * delta.powi(2);
+                }
+            }
+            Ok(error/size as f64)
+        },
+        _ => return Err(TensorError::TypeMismatch),
     }
 }
