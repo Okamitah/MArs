@@ -221,7 +221,6 @@ impl Tensor {
             _ => Err(TensorError::TypeMismatch)
         }
     }
-<<<<<<< HEAD
 
     pub fn sum(&self) -> Result<f64, TensorError> {
         if self.shape.is_empty() {
@@ -244,7 +243,4 @@ impl Tensor {
         
         Ok(sum/len)
     }
-=======
-  
->>>>>>> f3c073f685528c1469c39b63c9a36dca15272ed2
 }
