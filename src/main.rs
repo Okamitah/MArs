@@ -1,4 +1,5 @@
 fn main() {
+    //Variables
     let data = vec![1.5, 7.2, 5.0, 2.6];
     let shape = vec![2,2];
     //let strides = None;
@@ -219,5 +220,5 @@ impl Tensor {
             _ => Err(TensorError::TypeMismatch)
         }
     }
-
+  
 }
