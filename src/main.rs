@@ -2,7 +2,7 @@ fn main() {
     let data = vec![1.5, 7.2, 5.0, 2.6];
     let shape = vec![2,2];
     //let strides = None;
-    let dtype = DType::F32;
+    let dtype = DType::F64;
     let tensor = Tensor::new(data, shape.clone(), dtype.clone());
     let zeroes = Tensor::zeroes(shape.clone(), dtype.clone());
     let ones = Tensor::ones(shape.clone(), dtype.clone());
@@ -25,13 +25,13 @@ fn main() {
 
 #[derive(Debug)]
 enum TensorData {
-    F32(Vec<f32>),
+    F64(Vec<f64>),
     I32(Vec<i32>),
 }
 
 #[derive(Debug, Clone)]
 enum DType {
-    F32,
+    F64,
     I32,
 }
 
@@ -39,6 +39,7 @@ enum DType {
 enum TensorError {
     TypeMismatch,
     ShapeMismatch,
+    EmptyTensor,
 }
 
 #[derive(Debug)]
@@ -50,9 +51,9 @@ struct Tensor {
 }
 
 impl Tensor {
-    pub fn new(data: Vec<f32>, shape: Vec<usize>, dtype: DType) -> Self {
+    pub fn new(data: Vec<f64>, shape: Vec<usize>, dtype: DType) -> Self {
         Self {
-            data: TensorData::F32(data),
+            data: TensorData::F64(data),
             shape,
             strides: None,
             dtype,
@@ -62,13 +63,13 @@ impl Tensor {
     pub fn zeroes(shape: Vec<usize>, dtype: DType) -> Self {
         let size = shape.iter().product();
         match dtype {
-            DType::F32 => {
+            DType::F64 => {
                 let data = vec![0.0; size];
                 Self {
-                    data: TensorData::F32(data),
+                    data: TensorData::F64(data),
                     shape,
                     strides: None,
-                    dtype: DType::F32,
+                    dtype: DType::F64,
                 }
             }
             DType::I32 => {
@@ -86,13 +87,13 @@ impl Tensor {
     pub fn ones(shape: Vec<usize>, dtype: DType) -> Self {
         let size = shape.iter().product();
         match dtype {
-            DType::F32 => {
+            DType::F64 => {
                 let data = vec![1.0; size];
                 Self {
-                    data: TensorData::F32(data),
+                    data: TensorData::F64(data),
                     shape,
                     strides: None,
-                    dtype: DType::F32,
+                    dtype: DType::F64,
                 }
             }
             DType::I32 => {
@@ -113,13 +114,13 @@ impl Tensor {
         }
 
         match (&self.data, &tensor.data) {
-            (TensorData::F32(a), TensorData::F32(b)) => {
-                let result: Vec<f32> = a.iter().zip(b).map(|(&x, &y)| x+y).collect();
+            (TensorData::F64(a), TensorData::F64(b)) => {
+                let result: Vec<f64> = a.iter().zip(b).map(|(&x, &y)| x+y).collect();
                 Ok(Tensor {
-                    data: TensorData::F32(result),
+                    data: TensorData::F64(result),
                     shape: self.shape.clone(),
                     strides: None,
-                    dtype: DType::F32
+                    dtype: DType::F64
                 })
             },
             (TensorData::I32(a), TensorData::I32(b)) => {
@@ -141,13 +142,13 @@ impl Tensor {
         }
 
         match (&self.data, &tensor.data) {
-            (TensorData::F32(a), TensorData::F32(b)) => {
-                let result: Vec<f32> = a.iter().zip(b).map(|(&x, &y)| x*y).collect();
+            (TensorData::F64(a), TensorData::F64(b)) => {
+                let result: Vec<f64> = a.iter().zip(b).map(|(&x, &y)| x*y).collect();
                 Ok(Tensor {
-                    data: TensorData::F32(result),
+                    data: TensorData::F64(result),
                     shape: self.shape.clone(),
                     strides: None,
-                    dtype: DType::F32
+                    dtype: DType::F64
                 })
             },
             (TensorData::I32(a), TensorData::I32(b)) => {
@@ -169,13 +170,13 @@ impl Tensor {
         }
 
         match (&self.data, &tensor.data) {
-            (TensorData::F32(a), TensorData::F32(b)) => {
-                let result: Vec<f32> = a.iter().zip(b).map(|(&x, &y)| x-y).collect();
+            (TensorData::F64(a), TensorData::F64(b)) => {
+                let result: Vec<f64> = a.iter().zip(b).map(|(&x, &y)| x-y).collect();
                 Ok(Tensor {
-                    data: TensorData::F32(result),
+                    data: TensorData::F64(result),
                     shape: self.shape.clone(),
                     strides: None,
-                    dtype: DType::F32
+                    dtype: DType::F64
                 })
             },
             (TensorData::I32(a), TensorData::I32(b)) => {
@@ -198,13 +199,13 @@ impl Tensor {
         }
 
         match (&self.data, &tensor.data) {
-            (TensorData::F32(a), TensorData::F32(b)) => {
-                let result: Vec<f32> = a.iter().zip(b).map(|(&x, &y)| x/y).collect();
+            (TensorData::F64(a), TensorData::F64(b)) => {
+                let result: Vec<f64> = a.iter().zip(b).map(|(&x, &y)| x/y).collect();
                 Ok(Tensor {
-                    data: TensorData::F32(result),
+                    data: TensorData::F64(result),
                     shape: self.shape.clone(),
                     strides: None,
-                    dtype: DType::F32
+                    dtype: DType::F64
                 })
             },
             (TensorData::I32(a), TensorData::I32(b)) => {
@@ -220,4 +221,25 @@ impl Tensor {
         }
     }
 
+    pub fn sum(&self) -> Result<f64, TensorError> {
+        if self.shape.is_empty() {
+            return Err(TensorError::EmptyTensor);
+        }
+
+        match &self.data {
+            TensorData::F64(values) => Ok(values.iter().copied().sum()),
+            TensorData::I32(values) => Ok(values.iter().map(|&x| x as f64).sum()),
+        }
+    }
+
+    pub fn mean(&self) -> Result<f64, TensorError> {
+        if self.shape.is_empty() {
+            return Err(TensorError::EmptyTensor);
+        }
+
+        let sum = &self.sum().unwrap();
+        let len = &self.shape.iter().map(|&x| x as f64).product();
+        
+        Ok(sum/len)
+    }
 }
