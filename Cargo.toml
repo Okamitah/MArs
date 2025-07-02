@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 description = "A Machine Learning framework written and used in Rust"
 license = "MIT"
-authors = ["okamitah okamitah@proton.me", "versbyte "]
+authors = ["Okamitah okamitah@proton.me"]
 
 [dependencies]
