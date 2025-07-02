@@ -1,5 +1,5 @@
-use MArs::tensor::{Tensor, DType};
-use MArs::loss::{mae, mse, rmse, cross_entropy, hinge};
+use MA_rs::tensor::{Tensor, DType};
+use MA_rs::loss::{mae, mse, rmse, cross_entropy, hinge};
 
 fn main() {
     //Variables
